@@ -1,0 +1,1 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/ls830et0nxjjf5us?svg=true)](https://ci.appveyor.com/project/SergeiAnatolich/gradle-2-4-bdd-task-2)
