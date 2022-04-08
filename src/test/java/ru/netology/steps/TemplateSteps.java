@@ -5,16 +5,19 @@ import io.cucumber.java.ru.И;
 import io.cucumber.java.ru.Когда;
 import io.cucumber.java.ru.Пусть;
 import io.cucumber.java.ru.Тогда;
+import org.junit.jupiter.api.Assertions;
+import ru.netology.data.DataHelper;
+import ru.netology.page.CardReplenishmentPage;
 import ru.netology.page.DashboardPage;
 import ru.netology.page.LoginPage;
 import ru.netology.page.VerificationPage;
-import ru.netology.page.CardReplenishment;
+
 
 public class TemplateSteps {
     private static LoginPage loginPage;
     private static DashboardPage dashboardPage;
     private static VerificationPage verificationPage;
-    private static CardReplenishment cardReplenishment;
+    private static CardReplenishmentPage cardReplenishmentPage;
 
     @Пусть("открыта страница с формой авторизации {string}")
     public void openAuthPage(String url) {
@@ -31,38 +34,27 @@ public class TemplateSteps {
         dashboardPage = verificationPage.validVerify(verificationCode);
     }
 
-    @И("происходит успешная авторизация и пользователь попадает на страницу 'Личный кабинет'")
+    @Тогда("происходит успешная авторизация и пользователь попадает на страницу 'Личный кабинет'")
     public void verifyDashboardPage() {
         dashboardPage.verifyIsDashboardPage();
     }
 
-    @И("есть баланс карты 1")
-    public void setBalance1() {
-        dashboardPage.getCardBalance(0);
+    @Тогда("появляется ошибка о неверном коде проверки")
+    public void verifyCodeIsInvalid() {
+        verificationPage.verifyCodeIsInvalid();
     }
 
-    @И("есть баланс карты 2")
-    public void setBalance2() {
-        dashboardPage.getCardBalance(1);
+    @И("пользователь переводит {string} рублей на свою корту {int} со своей карты № {int}")
+    public void transfer(String amount, int numberCard, int numberCardTransfer) {
+        String cardTransfer = DataHelper.getCardNumber(numberCardTransfer).getNumber();
+        dashboardPage.transfer(numberCard - 1);
+        cardReplenishmentPage = new CardReplenishmentPage();
+        cardReplenishmentPage.transfer(amount, cardTransfer);
     }
 
-    @И("нажимает кнопку пополнить напротив первой карты")
-    public void cardReplenishment1() {
-        dashboardPage.transferFromCard2ToCard1();
-    }
-
-    @И("нажимает кнопку пополнить напротив второй карты")
-    public void cardReplenishment2() {
-        cardReplenishment = dashboardPage.transferFromCard1ToCard2();
-    }
-
-    @И("делает перевод на сумму {string} и с карты {string} и нажимает кнопку пополнить")
-    public void cardReplenishmentPage(String amount, String numberCard) {
-        cardReplenishment.transfer(amount, numberCard);
-    }
-
-    @Тогда("Возвращается на страницу 'Личный кабинет'")
-    public void returnVerifyDashboardPage() {
-        dashboardPage.verifyIsDashboardPage();
+    @Тогда("баланс его карты № {int} должен стать {int} рублей")
+    public void balanceCard (int index, int amount) {
+        dashboardPage.getCardBalance(index);
+        Assertions.assertEquals(amount, dashboardPage.getCardBalance(index));
     }
 }
